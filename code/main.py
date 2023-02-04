@@ -1,5 +1,5 @@
 from PyQt5 import uic
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLineEdit
 from PyQt5.QtGui import QIcon, QPixmap
 
 import sys
@@ -9,14 +9,15 @@ from settings import *
 from support import get_coords
 
 
-class MainWindow(QMainWindow):
+class MainWindow(QMainWindow): # TODO: получать изображения прямо из интернета, не записывая в файл
     def __init__(self):
         super().__init__()
 
         self.static_api_params = {
             "l": "map",
             "ll": "30.416717,59.722324",
-            "size": "650,450"
+            "size": "650,450",
+            "spn": "0.01,0.01"
         }
 
         uic.loadUi("../graphics/main_window.ui", self)
@@ -25,6 +26,24 @@ class MainWindow(QMainWindow):
         self.set_buttons()
         self.search()
         self.set_map_image()
+
+    # обработка нажатия клавиш
+    def keyPressEvent(self, event):
+        # кнопка PageUp
+        if event.key() == 0x01000016:
+            a, b = list(map(float, self.static_api_params["spn"].split(',')))
+            a += 0.01
+            b += 0.01
+            self.static_api_params["spn"] = f'{a},{b}'
+            self.search()
+        # кнопка PageDown
+        elif event.key() == 0x01000017:
+            a, b = list(map(float, self.static_api_params["spn"].split(',')))
+            a -= 0.01
+            b -= 0.01
+            self.static_api_params["spn"] = f'{a},{b}'
+            self.search()
+
 
     def set_map_image(self):
         self.pixmap = QPixmap("../graphics/current_map.png")
