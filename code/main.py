@@ -13,6 +13,8 @@ class MainWindow(QMainWindow): # TODO: получать изображения �
     def __init__(self):
         super().__init__()
 
+        self.spn_ind = 0
+
         self.static_api_params = {
             "l": "map",
             "ll": "30.416717,59.722324",
@@ -31,17 +33,47 @@ class MainWindow(QMainWindow): # TODO: получать изображения �
     def keyPressEvent(self, event):
         # кнопка PageUp
         if event.key() == 0x01000016:
-            a, b = list(map(float, self.static_api_params["spn"].split(',')))
-            a += 0.01
-            b += 0.01
-            self.static_api_params["spn"] = f'{a},{b}'
-            self.search()
+            self.spn_ind += 1
+            if self.spn_ind == len(SPN):
+                self.spn_ind -= 1
+            else:
+                self.static_api_params["spn"] = SPN[self.spn_ind]
+                self.search()
         # кнопка PageDown
         elif event.key() == 0x01000017:
-            a, b = list(map(float, self.static_api_params["spn"].split(',')))
+            self.spn_ind -= 1
+            if self.spn_ind == -1:
+                self.spn_ind = 0
+            else:
+                self.static_api_params["spn"] = SPN[self.spn_ind]
+                self.search()
+
+        # кнопка Left
+        elif event.key() == 0x01000012:
+            a, b = list(map(float, self.static_api_params["ll"].split(',')))
             a -= 0.01
+            self.static_api_params["ll"] = f'{a},{b}'
+            self.search()
+
+        # кнопка Up
+        elif event.key() == 0x01000013:
+            a, b = list(map(float, self.static_api_params["ll"].split(',')))
+            b += 0.01
+            self.static_api_params["ll"] = f'{a},{b}'
+            self.search()
+
+        # кнопка Right
+        elif event.key() == 0x01000014:
+            a, b = list(map(float, self.static_api_params["ll"].split(',')))
+            a += 0.01
+            self.static_api_params["ll"] = f'{a},{b}'
+            self.search()
+
+        # кнопка Down
+        elif event.key() == 0x01000015:
+            a, b = list(map(float, self.static_api_params["ll"].split(',')))
             b -= 0.01
-            self.static_api_params["spn"] = f'{a},{b}'
+            self.static_api_params["ll"] = f'{a},{b}'
             self.search()
 
 
@@ -57,13 +89,16 @@ class MainWindow(QMainWindow): # TODO: получать изображения �
         self.search_btn.clicked.connect(self.search)
 
     def set_schedule(self):
-        pass
+        self.static_api_params["l"] = "map"
+        self.search()
 
     def set_satellite(self):
-        pass
+        self.static_api_params["l"] = "sat"
+        self.search()
 
     def set_hybrid(self):
-        pass
+        self.static_api_params["l"] = "skl"
+        self.search()
 
     def reset(self):
         pass
@@ -71,11 +106,9 @@ class MainWindow(QMainWindow): # TODO: получать изображения �
     def search(self):
         if self.adress_request.text():
             if get_coords(self.adress_request.text()):
-                self.static_api_params["ll"] = get_coords(self.adress_request.text())
-            else:
-                self.static_api_params["ll"] = "30.416717,59.722324"
-        else:
-            self.static_api_params["ll"] = "30.416717,59.722324"
+                coords = get_coords(self.adress_request.text())
+                self.static_api_params["ll"] = coords
+                self.static_api_params["pt"] = f"{coords},pm2rdm"
         print(self.static_api_params)
         response = requests.get(MAP_API_SERVER, params=self.static_api_params)
 
