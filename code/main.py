@@ -4,7 +4,7 @@ from PyQt5.QtGui import QIcon, QPixmap
 
 import sys
 import requests
-# connect 2(
+
 from settings import *
 from support import get_coords
 
