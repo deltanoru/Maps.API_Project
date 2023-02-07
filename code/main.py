@@ -9,7 +9,7 @@ from settings import *
 from support import get_coords
 
 
-class MainWindow(QMainWindow): # TODO: получать изображения прямо из интернета, не записывая в файл
+class MainWindow(QMainWindow): # TODO: получать изображения прямо из интернета, не записывая в файл sup
     def __init__(self):
         super().__init__()
 
